@@ -7,10 +7,9 @@ import reportWebVitals from './reportWebVitals';
 import {BrowserRouter as Router} from  'react-router-dom';
 import {Provider} from 'react-redux'
 import rootReducer from './Reducers/rootReducer'
-import {createStore, applyMiddleware} from 'redux'
-import { configureStore } from '@reduxjs/toolkit'
+import {createStore} from 'redux'
 
-
+//localStorage.removeItem("boards")
 const boards = JSON.parse(localStorage.getItem("boards") || "[]");
 console.log(boards)
 const preloadedState = {boards}

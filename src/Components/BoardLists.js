@@ -5,6 +5,8 @@ import ModalWindow from './UI/ModalWindow'
 import BoardItem from './BoardItem'
 import Row from './UI/Row'
 import Column from './UI/Column'
+import {connect} from 'react-redux'
+import {AddList} from '../Actions/ListActions'
 
 
 class BoardLists extends React.Component{
@@ -36,7 +38,7 @@ class BoardLists extends React.Component{
 
     addBoardItemHandler(evt){
         if(this.state.boardItemTextBoxVal.trim() === "") return;
-        this.props.onAddBoardItemClickHandler(this.state.boardItemTextBoxVal, this.props.board,evt);
+        this.props.AddList(this.props.board.id,this.state.boardItemTextBoxVal);
         this.setState({
             boardItemTextBoxVal : "",
             Modal : { show : false},
@@ -73,11 +75,7 @@ class BoardLists extends React.Component{
                                         card = {this.props.card}
                                         key={index} 
                                         list={list}
-                                        onSaveCardDesc ={this.props.onSaveCardDesc}
-                                        onListNameSave={(editedListName, listId, evt) => this.props.onListNameSave(editedListName, board,listId,evt)}
-                                        onAddCard={(cardName,listId, evt) => this.props.onAddCard(cardName,board,listId,evt)} 
-                                        onRemoveCard = {(listId,cardId,evt) => this.props.onRemoveCard(board,listId,cardId,evt)} 
-                                        onSaveEditedCardName={(editedCardName,listId,cardId,evt) => this.props.onSaveEditedCardName(editedCardName,board,listId,cardId,evt)} />
+                                        />
                                     )
                                     
                                 })
@@ -122,4 +120,4 @@ class BoardLists extends React.Component{
 }
 
 
-export default BoardLists;
+export default connect(null , {AddList} )(BoardLists);

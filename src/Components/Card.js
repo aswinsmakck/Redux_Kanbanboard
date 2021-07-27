@@ -2,6 +2,8 @@ import React from "react";
 import {Link , withRouter} from 'react-router-dom';
 import ModalWindow from './UI/ModalWindow'
 import Button from './UI/Button'
+import { RemoveCard, EditCardTitle , EditCardDescription} from '../Actions/CardActions'
+import { connect } from 'react-redux'
 
 class Card extends React.Component{
 
@@ -25,7 +27,7 @@ class Card extends React.Component{
 
     saveEditedCardName(evt){
         //if(this.props.textBoxVal.trim())
-        this.props.onSaveEditedCardName(this.state.textBoxVal,this.props.listId, this.props.card.id, evt)
+        this.props.EditCardTitle(this.props.boardId,this.props.listId, this.props.card.id, this.state.textBoxVal)
         this.setState({textBoxVal:"",toggleTextBox : false})
     }
 
@@ -44,7 +46,7 @@ class Card extends React.Component{
     
     saveEditedCardDesc(evt){
         if(this.state.textArea.trim() === "") return;
-        this.props.onSaveCardDesc(this.state.textArea,this.props.boardId,this.props.listId,this.props.card.id,evt)
+        this.props.EditCardDescription(this.props.boardId,this.props.listId,this.props.card.id,this.state.textArea)
         this.setState({textArea : "", editDescription : false});
     }
 
@@ -89,7 +91,7 @@ class Card extends React.Component{
 
                         <span>
                             <i onClick={this.toggleCardNameEdit.bind(this)} style={{fontWeight : "normal"}} className="fas fa-edit"></i>
-                            <i onClick={(evt) => this.props.onRemoveCard(this.props.listId, this.props.card.id, evt)} style={{fontWeight : "normal", marginLeft:"5px"}} className="far fa-trash-alt"></i>
+                            <i onClick={(evt) => this.props.RemoveCard(this.props.boardId, this.props.listId, this.props.card.id)} style={{fontWeight : "normal", marginLeft:"5px"}} className="far fa-trash-alt"></i>
                         </span>
 
                     }
@@ -121,4 +123,4 @@ class Card extends React.Component{
 }
 
 
-export default withRouter(Card);
+export default connect(null, { RemoveCard, EditCardTitle, EditCardDescription })(withRouter(Card));

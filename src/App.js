@@ -5,7 +5,6 @@ import {Switch, Route} from  'react-router-dom';
 import BoardLists from './Components/BoardLists';
 import Header from './Components/Header';
 import _ from 'lodash';
-import {nanoid} from 'nanoid';
 import {connect} from 'react-redux'
 
 class App extends React.Component {
@@ -20,164 +19,17 @@ class App extends React.Component {
             let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
             console.log(localDB);
 
-            let ModifiedLocalDB = this.state.boards;
+            let ModifiedLocalDB = this.props.boards;
             console.log(ModifiedLocalDB);
             localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
             console.log(JSON.parse(localStorage.getItem("boards") || "[]"))
         }
     }
 
-    changeTextBoxValHandler(evt){
-        console.log(this)
-        console.log(evt.target)
-        console.log(evt.target.value)
-        let textBoxVal = evt.target.value;
-        this.setState({...this.state, textBoxVal : textBoxVal})
-    }
-
-  componentDidMount(){        
-    //localStorage.setItem("boards",JSON.stringify(brds));
-    //localStorage.removeItem("boards");
-    let boards = JSON.parse(localStorage.getItem("boards") || "[]");
-    console.log(boards)
-    if(boards == null) return;
-    //this.setState({...this.state, boards: boards});
-  }
-
- 
-addCardtoListHandler(cardName,_board,listId,evt){
-    if(cardName.trim() === "") return;
-    let boards = [...this.state.boards]
-    let boardIndex = boards.findIndex(boardObj => boardObj.id === _board.id) 
-    let id = nanoid();
-    let lists = _.cloneDeep(boards[boardIndex]).lists.map((list) => {
-        if(list.id === listId){
-            if(!('cards' in list)){
-                list.cards = []
-            }
-            list.cards.push({id : id, title : cardName , desc : ""});
-        }
-        
-        return list;
-    })
-    
-    boards[boardIndex] = {...boards[boardIndex], lists:lists}
-    this.setState({boards : boards})
-
-}
-
-listNameSave(editedListName, _board,listId, evt){ 
-    if(editedListName.trim() === "") return;
-    let boards = [...this.state.boards]
-    let boardIndex = boards.findIndex(boardObj => boardObj.id === _board.id) 
-    let lists = _.cloneDeep(boards[boardIndex]).lists.map((list) => {
-        if(list.id === listId){
-            list.name = editedListName;
-        }
-        
-        return list;
-    })
-    boards[boardIndex] = {...boards[boardIndex], lists:lists}
-
-    this.setState({boards : boards})
-    
-}
-
-removeCard(_board, listId, cardId, evt){
-
-    let boards = [...this.state.boards]
-    let boardIndex = boards.findIndex(boardObj => boardObj.id === _board.id) 
-    let lists = _.cloneDeep(boards[boardIndex]).lists.map((list) => {
-        if(list.id === listId){
-            let cards = list.cards;
-            cards.splice(cards.findIndex(card => card.id === cardId) , 1)
-        }
-        
-        return list;
-    })
-
-    console.log("lists",lists)
-    
-    boards[boardIndex] = {...boards[boardIndex], lists:lists}
-    this.setState({boards : boards})
-
-}
-
-saveEditedCardName(editedCardName, _board, listId, cardId, evt){
-    if(editedCardName.trim() === "") return;
-    let boards = [...this.state.boards]
-    let boardIndex = boards.findIndex(boardObj => boardObj.id === _board.id)
-    let lists = _.cloneDeep(boards[boardIndex]).lists.map((list) => {
-        if(list.id === listId){
-            list.cards.map(card => {
-                if(card.id === cardId){
-                    card.title = editedCardName;
-                }
-                return card;
-            })
-        }
-        
-        return list;
-    })
-
-    boards[boardIndex] = {...boards[boardIndex], lists:lists}
-
-    this.setState({boards : boards})
-
-}
-
-  addBoardClickHandler(boardName, evt){
-
-      let id = nanoid();
-      if(boardName.trim() === "") return;
-      this.setState({boards : [...this.state.boards, {id : id,name: boardName, lists : []}],})
-
-  }
-
-  addBoardItemClickHandler(boardItemName, board, evt){
-
-    let boards = [...this.state.boards]
-    console.log("In add list ")
-    console.log(boards)
-    console.log(board)
-
-    let boardIndex = this.state.boards.findIndex(boardInState => boardInState.id === board.id)
-
-    console.log("boardindex",boardIndex);
-
-
-    let lists = [...boards[boardIndex].lists];
-    
-    let id = nanoid()
-    lists.push({ id: id, name : boardItemName})
-
-    boards[boardIndex] = {...boards[boardIndex], lists : lists}
-
-    this.setState({boards : boards,})
-    
-  }
-
-  saveCardDesc(editedCardDesc,boardId,listId,cardId,evt){
-      console.log("i am executing")
-    let boards = [...this.state.boards]
-    let boardIndex = boards.findIndex(boardObj => boardObj.id === boardId) 
-    let lists = _.cloneDeep(boards[boardIndex]).lists
-    
-    let list = lists[lists.findIndex(list => list.id === listId)]
-
-    let card = list.cards[list.cards.findIndex(card => card.id === cardId)]
-    card.desc = editedCardDesc;
-
-    console.log("lists in card modal",lists)
-    boards[boardIndex] = {...boards[boardIndex], lists:lists}
-
-    this.setState({boards : boards})
-
-  }
 
   renderBoardLists (props){
     console.log("In APP",props);
-    let board = this.state.boards.find((board) => board.id === props.match.params.id)
+    let board = this.props.boards.find((board) => board.id === props.match.params.id)
 
     console.log("board",board)
     if(!board) return <h1>Invalid Board !!!</h1>
@@ -201,36 +53,18 @@ saveEditedCardName(editedCardName, _board, listId, cardId, evt){
         match={props.match}
         board={board}
         list={list}
-        onSaveCardDesc = {this.saveCardDesc.bind(this)}
-        onListNameSave={this.listNameSave.bind(this)}
-        onAddCard={this.addCardtoListHandler.bind(this)} 
-        onRemoveCard = {this.removeCard.bind(this)}
-        onSaveEditedCardName={this.saveEditedCardName.bind(this)} 
-        onAddBoardItemClickHandler={this.addBoardItemClickHandler.bind(this)}
         />
 
     )
   }
-
-  renderHomePage(props){
-    return ( 
-      <HomePage
-        addBoardClickHandler = {this.addBoardClickHandler.bind(this)} 
-      />
-    )
-  }
-
-  renderCardModal(props){
-      console.log("modal props",props)
-  }
-
+  
   render (){
     return(
       //conditional rendering Login or Homepage
       <React.Fragment>
         <Header />
         <Switch>
-          <Route path="/" exact render={ this.renderHomePage.bind(this) } />
+          <Route path="/" exact component={HomePage} />
           <Route path="/board/:id/:listid?/:cardid?" render={this.renderBoardLists.bind(this)} />
         </Switch>
       </React.Fragment>

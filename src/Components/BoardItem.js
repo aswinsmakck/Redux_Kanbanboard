@@ -1,8 +1,11 @@
 import React from 'react';
 import Column from './UI/Column'
 import Card from './Card'
+import { connect } from 'react-redux'
+import {EditListName} from '../Actions/ListActions'
+import { AddCard } from '../Actions/CardActions'
 
-export default class BoardItem extends React.Component{
+class BoardItem extends React.Component{
 
     constructor(props){
         super(props)
@@ -28,7 +31,7 @@ export default class BoardItem extends React.Component{
     }
 
     addNewCard(evt){
-        this.props.onAddCard(this.state.textBoxVal,this.props.list.id, evt)
+        this.props.AddCard(this.props.board.id, this.props.list.id,this.state.textBoxVal)
         this.setState({
             isActive : false,
             textBoxVal : "",
@@ -46,7 +49,7 @@ export default class BoardItem extends React.Component{
 
     saveEditedListName(evt){
         //if(this.state.listNameTextBoxVal.trim() === "") return;
-        this.props.onListNameSave(this.state.listNameTextBoxVal,this.props.list.id, evt)
+        this.props.EditListName(this.props.board.id, this.props.list.id, this.state.listNameTextBoxVal)
         this.setState({toggleTextBox : false, listNameTextBoxVal : ""})
     }
     
@@ -67,9 +70,6 @@ export default class BoardItem extends React.Component{
             return (
                 <Card
                     showCardModalPopup = {this.props.showCardModalPopup}
-                    onSaveCardDesc ={this.props.onSaveCardDesc}
-                    onRemoveCard = {this.props.onRemoveCard} 
-                    onSaveEditedCardName={this.props.onSaveEditedCardName} 
                     listId ={this.props.list.id} 
                     boardId = {this.props.board.id} 
                     card={card} 
@@ -116,3 +116,7 @@ export default class BoardItem extends React.Component{
     )    
 }
 }
+
+
+
+export default connect(null, {EditListName, AddCard })(BoardItem);
