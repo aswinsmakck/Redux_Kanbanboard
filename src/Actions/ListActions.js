@@ -10,11 +10,10 @@ export function AddList(boardId, listName) {
     };
 }
 
-export function EditListName(boardId, listId, editedListName) {
+export function EditListName(listId, editedListName) {
     return { 
         type: Actions.LIST_NAME_EDITED, 
         payload: { 
-            boardId,
             listId,
             editedListName
         } 

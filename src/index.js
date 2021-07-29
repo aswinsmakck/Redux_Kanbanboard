@@ -10,15 +10,17 @@ import rootReducer from './Reducers/rootReducer'
 import {createStore} from 'redux'
 
 //localStorage.removeItem("boards")
-const boards = JSON.parse(localStorage.getItem("boards") || "[]");
-console.log(boards)
-const preloadedState = {boards}
+//localStorage.removeItem("state_kanbanboard")
+//const boards = JSON.parse(localStorage.getItem("boards") || "[]");
+const localStore = JSON.parse(localStorage.getItem("state_kanbanboard") || "{}");
+console.log(localStore)
+const preloadedState = localStore;
 
 console.log("initial state for redux",preloadedState)
 const store = createStore(rootReducer,preloadedState);
 //const store = configureStore({reducer : rootReducer, preloadedState : initialState})
 console.log(store)
-console.log(store.getState())
+console.log("initial state for redux", store.getState())
 
 ReactDOM.render(
   <React.StrictMode>

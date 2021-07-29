@@ -4,56 +4,20 @@ import HomePage from './Components/HomePage';
 import {Switch, Route} from  'react-router-dom';
 import BoardLists from './Components/BoardLists';
 import Header from './Components/Header';
-import _ from 'lodash';
 import {connect} from 'react-redux'
+
 
 class App extends React.Component {
 
-    componentDidUpdate(prevProps, prevState){
-        console.log("------in APP comp did update----------")
-        console.log(prevProps)
-        console.log(prevState)
-        console.log(this.state)
-        console.log(_.isEqual(this.state, prevState))
-        if(!_.isEqual(this.props.boards, prevProps.boards)){
-            let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
-            console.log(localDB);
-
-            let ModifiedLocalDB = this.props.boards;
-            console.log(ModifiedLocalDB);
-            localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
-            console.log(JSON.parse(localStorage.getItem("boards") || "[]"))
-        }
-    }
-
-
   renderBoardLists (props){
     console.log("In APP",props);
-    let board = this.props.boards.find((board) => board.id === props.match.params.id)
+    let board = this.props.boards.byId[props.match.params.id] //this.props.boards.find((board) => board.id === props.match.params.id)
 
     console.log("board",board)
     if(!board) return <h1>Invalid Board !!!</h1>
 
-    let showCardModalPopup = false;
-    let card;
-    let list;
-    if(props.match.params.listid && props.match.params.cardid){
-        list = board.lists.find((list) => list.id === props.match.params.listid)
-        card = list.cards.find((card) => card.id === props.match.params.cardid)
-        console.log("card", card)
-        if(card){
-            showCardModalPopup = true;
-        }
-    }
-
     return (
-      <BoardLists
-        showCardModalPopup = {showCardModalPopup}
-        card = {card}
-        match={props.match}
-        board={board}
-        list={list}
-        />
+      <BoardLists board={board} />
 
     )
   }
@@ -73,6 +37,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = (state) => {
+  console.log("In App map to state props", state)
   return {boards : state.boards}
 }
 
