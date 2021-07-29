@@ -7,6 +7,7 @@ import Row from './UI/Row'
 import Column from './UI/Column'
 import {connect} from 'react-redux'
 import {AddList} from '../Actions/ListActions'
+import _,{pickBy} from 'lodash';
 
 
 class BoardLists extends React.Component{
@@ -19,6 +20,27 @@ class BoardLists extends React.Component{
             },
             boardItemTextBoxVal : "",
         };
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        console.log("------in board lists comp did update----------")
+        console.log(prevProps)
+        console.log(this.props)
+        console.log(_.isEqual(this.state, prevState))
+        if(!_.isEqual(this.props.lists, prevProps.lists)){
+            let localDB = JSON.parse(localStorage.getItem("state_kanbanboard") || "{}");
+            console.log(localDB);
+
+            let ModifiedLocalDB = { ...localDB, lists : this.props.lists };
+            console.log(ModifiedLocalDB);
+            localStorage.setItem("state_kanbanboard",JSON.stringify(ModifiedLocalDB))
+            console.log(JSON.parse(localStorage.getItem("state_kanbanboard") || "{}"))
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState){
+
+        return !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)
     }
 
     modalCloseHandler(){
@@ -45,17 +67,9 @@ class BoardLists extends React.Component{
         })
     }
 
-    /*shouldComponentUpdate(nextProps, nextState){
-        console.log("should component update start in board lists")
-        console.log(nextProps.board)
-        console.log(this.props.board)
-        console.log(!_.isEqual(this.props.board, nextProps.board));
-        return !_.isEqual(this.props.board, nextProps.board) || _.isEqual(this.state,nextState) || this.props.showCardModalPopup !== nextProps.showCardModalPopup;
-    }*/
-
     renderExistingLists (board){
         console.log(board)
-        let lists = board.lists;
+        let lists = Object.values(this.props.lists.byId)
         console.log("lists",lists)
 
 
@@ -67,14 +81,11 @@ class BoardLists extends React.Component{
                         <Row rowInnerStyle={{flexWrap:"nowrap",overflowX:"auto"}}>
                             
                             {
-                                this.props.board.lists.map( (list, index) => {
+                                lists.map( (list, index) => {
                                     return (
-                                        <BoardItem
-                                        board={board} 
-                                        showCardModalPopup = {this.props.showCardModalPopup}
-                                        card = {this.props.card}
-                                        key={index} 
-                                        list={list}
+                                        <BoardItem                                       
+                                            key={index} 
+                                            list={list}
                                         />
                                     )
                                     
@@ -119,5 +130,16 @@ class BoardLists extends React.Component{
     }
 }
 
+const mapStateToProps = (state, ownProps) => {
 
-export default connect(null , {AddList} )(BoardLists);
+    console.log(state);
+    let lists = _.pickBy(state.lists.byId, (value, key)=> {
+        console.log("key",key)
+        console.log(value)
+        return value.boardId === ownProps.board.id
+    })
+    console.log("filtered lists", lists)
+    return { lists : { byId : {...lists} } }
+}
+
+export default connect(mapStateToProps , {AddList} )(BoardLists);
