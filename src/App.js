@@ -4,60 +4,35 @@ import HomePage from './Components/HomePage';
 import {Switch, Route} from  'react-router-dom';
 import BoardLists from './Components/BoardLists';
 import Header from './Components/Header';
-import _ from 'lodash';
 import {connect} from 'react-redux'
+import _ from 'lodash'
+
 
 class App extends React.Component {
 
-    componentDidUpdate(prevProps, prevState){
-        console.log("------in APP comp did update----------")
-        console.log(prevProps)
-        console.log(prevState)
-        console.log(this.state)
-        console.log(_.isEqual(this.state, prevState))
-        if(!_.isEqual(this.props.boards, prevProps.boards)){
-            let localDB = JSON.parse(localStorage.getItem("boards") || "[]");
-            console.log(localDB);
-
-            let ModifiedLocalDB = this.props.boards;
-            console.log(ModifiedLocalDB);
-            localStorage.setItem("boards",JSON.stringify(ModifiedLocalDB))
-            console.log(JSON.parse(localStorage.getItem("boards") || "[]"))
-        }
-    }
-
-
-  renderBoardLists (props){
-    console.log("In APP",props);
-    let board = this.props.boards.find((board) => board.id === props.match.params.id)
-
-    console.log("board",board)
-    if(!board) return <h1>Invalid Board !!!</h1>
-
-    let showCardModalPopup = false;
-    let card;
-    let list;
-    if(props.match.params.listid && props.match.params.cardid){
-        list = board.lists.find((list) => list.id === props.match.params.listid)
-        card = list.cards.find((card) => card.id === props.match.params.cardid)
-        console.log("card", card)
-        if(card){
-            showCardModalPopup = true;
-        }
-    }
-
-    return (
-      <BoardLists
-        showCardModalPopup = {showCardModalPopup}
-        card = {card}
-        match={props.match}
-        board={board}
-        list={list}
-        />
-
-    )
+  shouldComponentUpdate(nextProps, nextState){
+    console.log("------------------------ app update ---------------------",!_.isEqual(nextProps, this.props));
+    console.log(nextProps);
+    return !_.isEqual(nextProps, this.props);
   }
   
+
+  componentDidUpdate(prevProps, prevState){
+    console.log("------in App comp did update----------")
+    console.log(prevProps)
+    console.log(this.props)
+    console.log(!_.isEqual(this.props.state, prevProps.state))
+    if(!_.isEqual(this.props.state, prevProps.state)){
+        let localDB = JSON.parse(localStorage.getItem("state_kanbanboard") || "{}");
+        console.log(localDB);
+      
+        let ModifiedLocalDB = this.props.state;
+        console.log(ModifiedLocalDB);
+        localStorage.setItem("state_kanbanboard",JSON.stringify(ModifiedLocalDB))
+        console.log(JSON.parse(localStorage.getItem("state_kanbanboard") || "{}"))
+    }
+}
+
   render (){
     return(
       //conditional rendering Login or Homepage
@@ -65,7 +40,7 @@ class App extends React.Component {
         <Header />
         <Switch>
           <Route path="/" exact component={HomePage} />
-          <Route path="/board/:id/:listid?/:cardid?" render={this.renderBoardLists.bind(this)} />
+          <Route path="/board/:id/:listid?/:cardid?" component={BoardLists} />
         </Switch>
       </React.Fragment>
     );
@@ -73,7 +48,8 @@ class App extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  return {boards : state.boards}
+  console.log("In App map to state props", state)
+  return {state}
 }
 
 export default connect(mapStateToProps)(App);

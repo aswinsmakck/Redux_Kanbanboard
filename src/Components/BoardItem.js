@@ -4,6 +4,7 @@ import Card from './Card'
 import { connect } from 'react-redux'
 import {EditListName} from '../Actions/ListActions'
 import { AddCard } from '../Actions/CardActions'
+import _,{pickBy} from 'lodash';
 
 class BoardItem extends React.Component{
 
@@ -16,6 +17,16 @@ class BoardItem extends React.Component{
             toggleTextBox : false,
             listNameTextBoxVal : "",
         }
+    }
+
+    shouldComponentUpdate(nextProps, nextState){
+        console.log("in board item comp should update", (!_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)));
+        console.log(nextProps);
+        console.log(nextState);
+        console.log(this.props);
+        console.log("list name",this.props.list.name);
+        console.log(this.state);
+        return !_.isEqual(this.props.cards, nextProps.cards) || !_.isEqual(this.state, nextState)
     }
 
     showAddNewCardForm(evt){
@@ -31,7 +42,8 @@ class BoardItem extends React.Component{
     }
 
     addNewCard(evt){
-        this.props.AddCard(this.props.board.id, this.props.list.id,this.state.textBoxVal)
+        if(this.state.textBoxVal.trim() === "") return;
+        this.props.AddCard(this.props.list.id,this.state.textBoxVal)
         this.setState({
             isActive : false,
             textBoxVal : "",
@@ -49,29 +61,18 @@ class BoardItem extends React.Component{
 
     saveEditedListName(evt){
         //if(this.state.listNameTextBoxVal.trim() === "") return;
-        this.props.EditListName(this.props.board.id, this.props.list.id, this.state.listNameTextBoxVal)
+        this.props.EditListName(this.props.list.id, this.state.listNameTextBoxVal)
         this.setState({toggleTextBox : false, listNameTextBoxVal : ""})
     }
-    
-
-    /*shouldComponentUpdate(nextProps, nextState){
-        console.log("should component update start in board item")
-        console.log("nextProps", nextProps.list)
-        console.log("props",this.props.list)
-        return !_.isEqual(this.props.list, nextProps.list);
-    }*/
 
     render(){
-    let cards = this.props.list.cards;
+    let cards = Object.values(this.props.cards.byId);
     let cardElements
     if(cards){
         cardElements = cards.map((card, index)=> {
             
             return (
                 <Card
-                    showCardModalPopup = {this.props.showCardModalPopup}
-                    listId ={this.props.list.id} 
-                    boardId = {this.props.board.id} 
                     card={card} 
                     key={index} 
                 />
@@ -79,6 +80,7 @@ class BoardItem extends React.Component{
 
         })
     }
+    console.log("card elems",cardElements)
     return (
         <Column>
             <div className="board-item">
@@ -117,6 +119,10 @@ class BoardItem extends React.Component{
 }
 }
 
+const mapStateToProps = (state, ownProps) => {
+    console.log("---------------- cards complete --------", state.cards.byId)
+    let cards = _.pickBy(state.cards.byId, (value, key)=> value.listId === ownProps.list.id) //Object.values(state.cards.byId).filter(card => card.listId === ownProps.list.id);
+    return { cards : {byId : {...cards} } };
+}
 
-
-export default connect(null, {EditListName, AddCard })(BoardItem);
+export default connect(mapStateToProps, { EditListName, AddCard })(BoardItem);

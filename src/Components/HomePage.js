@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import { AddBoard } from '../Actions/BoardActions'
 import {Link} from 'react-router-dom';
 import Board from './Board';
+import _ from 'lodash';
 
 class HomePage extends React.Component{
 
@@ -21,9 +22,10 @@ class HomePage extends React.Component{
         }
     }
 
-    /*shouldComponentUpdate(nextProps, nextState){
-        return !_.isEqual(this.state, nextState)
-    }*/
+    shouldComponentUpdate(nextProps, nextState){
+
+        return !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)
+    }
 
     modalCloseHandler(){
         console.log(this);
@@ -51,7 +53,10 @@ class HomePage extends React.Component{
     }
 
     renderExistingBoards(){
-        return this.props.boards.map((board,index) =>{
+
+        let boards = Object.values(this.props.boards.byId)
+
+        return boards.map((board,index) =>{
             console.log("In render existing boards",board)
             return (
                 <Link className="Link" key={index} to={{pathname : `/board/${board.id}`}}>
@@ -92,9 +97,7 @@ class HomePage extends React.Component{
 }
 
 const mapStateToProps = (state) => {
-    console.log("map state to props",state)
-    console.log("map state to props",state.boards)
-    return { boards : state.boards || [] }
+    return { boards : state.boards }
 }
 
 export default connect( mapStateToProps, { AddBoard } )( HomePage );

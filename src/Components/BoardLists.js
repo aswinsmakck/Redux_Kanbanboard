@@ -7,6 +7,7 @@ import Row from './UI/Row'
 import Column from './UI/Column'
 import {connect} from 'react-redux'
 import {AddList} from '../Actions/ListActions'
+import _,{pickBy} from 'lodash';
 
 
 class BoardLists extends React.Component{
@@ -19,6 +20,11 @@ class BoardLists extends React.Component{
             },
             boardItemTextBoxVal : "",
         };
+    }
+
+    shouldComponentUpdate(nextProps, nextState){
+
+        return !_.isEqual(this.props.lists, nextProps.lists) || !_.isEqual(this.state, nextState)
     }
 
     modalCloseHandler(){
@@ -45,17 +51,9 @@ class BoardLists extends React.Component{
         })
     }
 
-    /*shouldComponentUpdate(nextProps, nextState){
-        console.log("should component update start in board lists")
-        console.log(nextProps.board)
-        console.log(this.props.board)
-        console.log(!_.isEqual(this.props.board, nextProps.board));
-        return !_.isEqual(this.props.board, nextProps.board) || _.isEqual(this.state,nextState) || this.props.showCardModalPopup !== nextProps.showCardModalPopup;
-    }*/
-
     renderExistingLists (board){
         console.log(board)
-        let lists = board.lists;
+        let lists = Object.values(this.props.lists.byId)
         console.log("lists",lists)
 
 
@@ -67,14 +65,11 @@ class BoardLists extends React.Component{
                         <Row rowInnerStyle={{flexWrap:"nowrap",overflowX:"auto"}}>
                             
                             {
-                                this.props.board.lists.map( (list, index) => {
+                                lists.map( (list, index) => {
                                     return (
-                                        <BoardItem
-                                        board={board} 
-                                        showCardModalPopup = {this.props.showCardModalPopup}
-                                        card = {this.props.card}
-                                        key={index} 
-                                        list={list}
+                                        <BoardItem                                       
+                                            key={index} 
+                                            list={list}
                                         />
                                     )
                                     
@@ -92,9 +87,9 @@ class BoardLists extends React.Component{
     }
 
     render(){
-
+        if(!this.props.board) return <h1>Invalid Board !!!</h1>
         let Modal = this.state.Modal
-
+        console.log("In lists",this.props)
         return (
             <Section>
                 <Row>
@@ -119,5 +114,19 @@ class BoardLists extends React.Component{
     }
 }
 
+const mapStateToProps = (state, ownProps) => {
 
-export default connect(null , {AddList} )(BoardLists);
+    console.log(ownProps)
+    let board = state.boards.byId[ownProps.match.params.id] //this.props.boards.find((board) => board.id === props.match.params.id)
+
+    console.log(state);
+    let lists = _.pickBy(state.lists.byId, (value, key)=> {
+        console.log("key",key)
+        console.log(value)
+        return value.boardId === board.id
+    })
+    console.log("filtered lists", lists)
+    return { lists : { byId : {...lists} }, board }
+}
+
+export default connect(mapStateToProps , {AddList} )(BoardLists);

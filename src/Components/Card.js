@@ -4,11 +4,14 @@ import ModalWindow from './UI/ModalWindow'
 import Button from './UI/Button'
 import { RemoveCard, EditCardTitle , EditCardDescription} from '../Actions/CardActions'
 import { connect } from 'react-redux'
+import _ from 'lodash';
 
 class Card extends React.Component{
 
     constructor(props){
        super(props);
+       console.log("constructor",props);
+
        this.state = {
            toggleTextBox : false,
            textBoxVal : "",
@@ -16,6 +19,34 @@ class Card extends React.Component{
            textArea : "",
        };
     }
+    static getDerivedStateFromProps(props, state){
+        console.log("derived", props)
+        console.log(state)
+        console.log(props.card.id)
+        console.log(props.match.params.cardid)
+        console.log("derived validness", props.card.id === props.match.params.cardid)
+        if(props.card.id === props.match.params.cardid){
+            return {
+                showCardModal : true,
+            }
+        }
+        return {
+            showCardModal : false,
+        };
+    }
+    shouldComponentUpdate(nextProps, nextState){
+        
+            console.log("in card item comp should update", (!_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)));
+            console.log(this.props.card.title);
+            console.log(nextProps);
+            console.log(nextState);
+            console.log(this.props);
+            console.log(this.state);
+        
+        return !_.isEqual(this.props.card, nextProps.card) || !_.isEqual(this.state, nextState)
+    }
+
+    component
 
     toggleCardNameEdit(evt){
         this.setState({toggleTextBox : true})
@@ -27,7 +58,7 @@ class Card extends React.Component{
 
     saveEditedCardName(evt){
         //if(this.props.textBoxVal.trim())
-        this.props.EditCardTitle(this.props.boardId,this.props.listId, this.props.card.id, this.state.textBoxVal)
+        this.props.EditCardTitle(this.props.card.id, this.state.textBoxVal)
         this.setState({textBoxVal:"",toggleTextBox : false})
     }
 
@@ -46,16 +77,18 @@ class Card extends React.Component{
     
     saveEditedCardDesc(evt){
         if(this.state.textArea.trim() === "") return;
-        this.props.EditCardDescription(this.props.boardId,this.props.listId,this.props.card.id,this.state.textArea)
+        this.props.EditCardDescription(this.props.card.id,this.state.textArea)
         this.setState({textArea : "", editDescription : false});
     }
 
     closeCardModal(evt){
+        this.props.history.goBack();
         this.setState({
             editDescription : false,
             textArea : "",
+            showCardModal : false,
         })
-        this.props.history.goBack()
+        
     }
 
     render(){
@@ -76,7 +109,7 @@ class Card extends React.Component{
 
                         : 
 
-                        <Link className="Link" style={{flex : "1 0 auto"}} to={{pathname : `/board/${this.props.boardId}/${this.props.listId}/${this.props.card.id}`}}>
+                        <Link className="Link" onClick={(evt)=>this.setState({showCardModal : true})} style={{flex : "1 0 auto"}} to={{pathname : `/board/${this.props.boardId}/${this.props.card.listId}/${this.props.card.id}`}}>
                             <span>{this.props.card.title}</span>
                         </Link>
                      } 
@@ -91,13 +124,13 @@ class Card extends React.Component{
 
                         <span>
                             <i onClick={this.toggleCardNameEdit.bind(this)} style={{fontWeight : "normal"}} className="fas fa-edit"></i>
-                            <i onClick={(evt) => this.props.RemoveCard(this.props.boardId, this.props.listId, this.props.card.id)} style={{fontWeight : "normal", marginLeft:"5px"}} className="far fa-trash-alt"></i>
+                            <i onClick={(evt) => this.props.RemoveCard(this.props.card.id)} style={{fontWeight : "normal", marginLeft:"5px"}} className="far fa-trash-alt"></i>
                         </span>
 
                     }
                 </h4>
                 {
-                    this.props.showCardModalPopup &&
+                    this.state.showCardModal &&
                     <ModalWindow modalHeader="Card Details" onClose={this.closeCardModal.bind(this)}>
                         <div style={{alignSelf:"center", width:"100%"}}>
                             <h1>Card - {this.props.card.title}</h1>
@@ -123,4 +156,8 @@ class Card extends React.Component{
 }
 
 
-export default connect(null, { RemoveCard, EditCardTitle, EditCardDescription })(withRouter(Card));
+const mapStateToProps = (state, ownProps) => {
+  return {boardId : state.lists.byId[ownProps.card.listId].boardId}
+}
+
+export default connect(mapStateToProps, { RemoveCard, EditCardTitle, EditCardDescription, })(withRouter(Card));
