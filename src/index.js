@@ -10,7 +10,7 @@ import rootReducer from './Reducers/rootReducer'
 import {createStore} from 'redux'
 
 //localStorage.removeItem("boards")
-//https://api.unsplash.com/photos?page=2&per_page=15&client_id=MbMxmkTCMGwEY1GQGDl9Xlc4qwGH6himTTc0c0QdSSE
+//https://api.unsplash.com/photos?page=2&per_page=15&client_id=xmkTCMGwEY1GQGDl9Xlc4qwGH6himTTc0c0Qd
 //localStorage.removeItem("state_kanbanboard")
 //const boards = JSON.parse(localStorage.getItem("boards") || "[]");
 const localStore = JSON.parse(localStorage.getItem("state_kanbanboard") || "{}");
